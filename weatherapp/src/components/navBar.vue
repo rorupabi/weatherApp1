@@ -1,5 +1,5 @@
 <template>
-    <nav class="bg-gray-400 flex items-center text-white p-4 mb-4 justify-between w-full py-8 top-0">
+    <nav class="relative bg-gray-400 flex items-center text-white p-4 mb-4 justify-between w-full py-8 top-0">
       <button class="text-xl font-semibold cursor-pointer hover:text-2xl duration-300">
         <span class="font-semibold text-purple-500 dark:text-purple-400">Forecast</span>27
       </button>
@@ -20,18 +20,11 @@
         <span class="text-xl">{{ isMobileMenuOpen ? '✕' : '☰' }}</span>
       </button>
 
-      <div v-if="isMobileMenuOpen" class=" absolute top-full left-0 right-0 md:hidden bg-gray-400 text-white shadow-lg border-t border-gray-300">
+      <div v-if="isMobileMenuOpen" class="absolute top-full left-0 right-0 md:hidden bg-gray-400 text-white shadow-lg border-t border-gray-300">
         <ul class="flex flex-col space-y-2 p-4">
           <li><a href="#home" class="block py-2 px-4 hover:bg-purple-500">Home</a></li>
           <li><a href="#about" class="block py-2 px-4 hover:bg-purple-500">News</a></li>
           <li><a href="#contact" class="block py-2 px-4 hover:bg-purple-500">Contact</a></li>
-          <li class="py-2">
-          <input 
-            type="text" 
-            placeholder="Search weather..." 
-            class="w-full p-2 rounded text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500" 
-          />
-        </li>
         </ul>
       </div>
     </nav>
