@@ -1,35 +1,41 @@
 <template>
     <!--<Weather Info />-->
-    <div class="bg-gradient-to-br from-purple-600 via-blue-500 to-teal-400 p-4 m-5 rounded-2xl shadow-lg">
-        <div class="max-w-7xl mx-auto">
-            <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-8 min-h-[80vh] flex flex-col justify-between">
+    <div class="bg-gradient-to-br from-purple-600 via-blue-500 to-teal-400 p-4 m-5 rounded-2xl shadow-lg max-w-full min-h-[300px]">
+        <div class="max-w-8xl mx-auto">
+            <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-6">
                 
                 <!-- Header Section -->
-                <div class="space-y-6">
-                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">{{ weatherData.location }}</h1>
+                <div class="mb-6">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">{{ weatherData.location }}</h1>
                     
-                    <div class="flex flex-row items-center space-x-4 mb-4 text-white">
-                        <div class="text-lg font-medium">
-                            <div>{{ currentDate }}</div>
-                        </div>
-                        <div class="text-lg font-medium">
-                            <div>Update As Of {{ currentTime }}</div>
-                        </div>
+                    <div class="flex flex-row items-center space-x-4 mb-4 text-white text-sm">
+                        <div>{{ currentDate }}</div>
+                        <div>Update As Of {{ currentTime }}</div>
                     </div>
                     
                     <!-- Simple Error Message Display -->
-                    <div v-if="error && !isLoading" class="bg-red-500/20 text-white p-4 rounded-lg border border-red-500/30">
+                    <div v-if="error && !isLoading" class="bg-red-500/20 text-white p-3 rounded-lg border border-red-500/30 text-sm">
                         <p>{{ error }}</p>
                     </div>
                     
                     <!-- Loading Indicator -->
-                    <div v-if="isLoading" class="bg-blue-500/20 text-white p-4 rounded-lg border border-blue-500/30">
+                    <div v-if="isLoading" class="bg-blue-500/20 text-white p-3 rounded-lg border border-blue-500/30 text-sm">
                         <p>Getting your weather...</p>
                     </div>
-
-                    <!-- Weather Details Card - positioned near top -->
-                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 max-w-lg">
-                        <div class="grid grid-cols-2 gap-4 text-sm md:text-base">
+                </div>
+                
+                <!-- Main Content - Temperature and Weather Details Side by Side -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                    
+                    <!-- Current Temperature Section -->
+                    <div class="text-white">
+                        <div class="text-4xl md:text-5xl font-bold mb-2">{{ weatherData.temperature }}°C</div>
+                        <div class="text-xl mb-1">{{ weatherData.condition }}</div>
+                    </div>
+                    
+                    <!-- Weather Details Grid -->
+                    <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-4">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
                             <div class="flex flex-col">
                                 <span class="text-gray-600 text-xs">Wind</span>
                                 <span class="font-medium">{{ weatherData.windSpeed }} km/h</span>
@@ -39,23 +45,16 @@
                                 <span class="font-medium">{{ weatherData.humidity }}%</span>
                             </div>
                             <div class="flex flex-col">
-                                <span class="text-gray-600 text-xs">Feels Like</span>
-                                <span class="font-medium">{{ weatherData.feelsLike }}°C</span>
-                            </div>
-                            <div class="flex flex-col">
                                 <span class="text-gray-600 text-xs">Visibility</span>
                                 <span class="font-medium">{{ weatherData.visibility }} km</span>
                             </div>
+                            <div class="flex flex-col">
+                                <span class="text-gray-600 text-xs">Feels Like</span>
+                                <span class="font-medium">{{ weatherData.feelsLike }}°C</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Bottom Section - Current Temperature -->
-                <div class="mt-auto">
-                    <div class="text-white text-center">
-                        <div class="text-4xl md:text-5xl font-bold mb-2">Current Temperature: {{ weatherData.temperature }}°C</div>
-                        <div class="text-xl">Condition: {{ weatherData.condition }}</div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
