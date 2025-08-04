@@ -39,8 +39,46 @@ A full-stack Weather API application built with **Nuxt.js**, **TailwindCSS v4**,
 ├── package.json
 └── README.md
 
+<<<<<<< HEAD
  Vue 3 + Vite
 
 This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
 Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+=======
+## ⚙️ Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/weather-api.git
+cd weather-api
+
+# Install backend dependencies
+cd server
+npm install
+
+# Setup SQLite
+# (Preconfigured or run migration if available)
+
+# Start the backend
+node app.js
+
+# Setup frontend
+cd ../client
+npm install
+
+# Run frontend
+npm run dev
+
+🌐 API Endpoints
+Method	Endpoint	Description
+GET	/api/weather/:city	Get weather by city name
+GET	/api/weather/coords?lat=...&lon=...	Get weather by coordinates
+
+License
+MIT
+
+TailwindCSS is customized using the tailwind.config.js in the client/ directory.
+
+Uses SQLite for quick local data access and caching.
+>>>>>>> 24350c17cb375d9562ac042f37cc09fb48c0c4a9
