@@ -1,7 +1,7 @@
 <template>
     <nav class="bg-gradient-to-br from-purple-500 to-indigo-300 flex items-center text-white p-12 mb-4 justify-between w-full py-8 top-0 sticky z-50">
       <button class="text-xl font-semibold cursor-pointer hover:text-2xl duration-300">
-        <span class="text-white">Forecast</span><span class="text-yellow-300 text-2xl">.27</span>
+        <span class="text-white font-bold">Forecast</span><span class="text-yellow-300 text-2xl">.27</span>
       </button>
       <ul class="hidden md:flex space-x-6 text-lg font-semibold">
         <li class="hover:text-2xl duration-300"><a href="#home">Home</a></li>
@@ -38,6 +38,19 @@ export default {
       isMobileMenuOpen,
       toggleMobileMenu
     };
+  }
+};
+
+const navigate = (path) => {
+  // This function can be used to navigate to different pages
+  // For example, using Vue Router:
+  // this.$router.push(path);
+  if (path === '/') {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (path === '#about') {
+    document.querySelector('#about').scrollIntoView({ behavior: 'smooth' });
+  } else if (path === '#contact') {
+    document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
   }
 };
 </script>
