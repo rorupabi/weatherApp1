@@ -14,7 +14,7 @@
 import Navbar from '../components/navBar.vue';
 import WeatherHeader from '../components/weatherHeader.vue';
 import Footer from '../components/footer.vue';
-import HourlyForecast from '../components/hourlyForecast.vue';
+import HourlyForecast from '../components/hourlyWeeklyForecast.vue';
 
 
 </script>
