@@ -3,6 +3,7 @@
         <Navbar/>
         <WeatherHeader/>
         <HourlyForecast/>
+        <WeatherDiffCountries/>
         <Footer/>
     </div>
   
@@ -15,6 +16,7 @@ import Navbar from '../components/navBar.vue';
 import WeatherHeader from '../components/weatherHeader.vue';
 import Footer from '../components/footer.vue';
 import HourlyForecast from '../components/hourlyWeeklyForecast.vue';
+import WeatherDiffCountries from '../components/weatherDiffCountries.vue';
 
 
 </script>

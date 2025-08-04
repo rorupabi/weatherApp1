@@ -6,7 +6,9 @@
                 
                 <!-- Header Section -->
                 <div class="mb-6">
-                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">{{ weatherData.location }}</h1>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-3">{{ weatherData.location }}
+                        
+                    </h1>
                     
                     <div class="flex flex-row items-center space-x-4 mb-4 text-white text-sm">
                         <div>{{ currentDate }}</div>
@@ -19,7 +21,7 @@
                     </div>
                     
                     <!-- Loading Indicator -->
-                    <div v-if="isLoading" class="bg-blue-500/20 text-white p-3 rounded-lg border border-blue-500/30 text-sm">
+                    <div v-if="isLoading" class="bg-blue-500/20 text-white p-3 max-w-xl hidden rounded-lg border border-blue-500/30 text-sm">
                         <p>Getting your weather...</p>
                     </div>
                 </div>
