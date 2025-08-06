@@ -4,10 +4,11 @@
       <!-- Header Section -->
       <div class="flex flex-col lg:flex-row justify-between items-start mb-8">
         <div class="flex-1 p-8">
-          <h1 class="text-3xl font-bold text-gray-800 mb-2">Recent Search Weather</h1>
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">Global Weather Dashboard</h1>
           <p class="text-gray-600 max-w-md">
             Real-time weather information from major cities around the world. 
             Data updates automatically to give you the most current conditions.
+            Developers standard time usage Singapore (GMT+8).
           </p>
         </div>
 
@@ -17,11 +18,14 @@
           <div class="space-y-3">
             <div 
               v-for="(weather, index) in weatherData.slice(0, 3)" 
-              :key="index" 
+              :key="`comparison-${weather.city}-${weather.temp}`" 
               class="flex justify-between items-center"
             >
               <span class="font-medium text-gray-700">{{ weather.country }}</span>
-              <span class="font-semibold text-gray-800">{{ weather.temp }}°C</span>
+              <div class="flex items-center space-x-2">
+                <component :is="getWeatherIcon(weather.condition)" class="w-5 h-5" />
+                <span class="font-semibold text-gray-800">{{ weather.temp }}°C</span>
+              </div>
             </div>
           </div>
         </div>
@@ -30,9 +34,9 @@
       <!-- Loading State -->
       <div v-if="loading" class="flex space-x-4 overflow-x-auto pb-4">
         <div 
-          v-for="i in 5" 
-          :key="i" 
-          class="flex-shrink-0 w-32 h-40 bg-gray-200 rounded-2xl animate-pulse"
+          v-for="i in 8" 
+          :key="`loading-${i}`" 
+          class="flex-shrink-0 w-72 h-40 bg-gray-200 rounded-2xl animate-pulse"
         ></div>
       </div>
 
@@ -40,15 +44,15 @@
       <div v-else class="flex space-x-4 overflow-x-auto pb-4">
         <div
           v-for="(weather, index) in weatherData"
-          :key="index"
-          :class="`flex-shrink-0 w-72 h-40 bg-gradient-to-br ${getBackgroundGradient(weather.condition)} rounded-2xl p-4 text-white shadow-lg relative overflow-hidden`"
+          :key="`weather-${weather.city}-${weather.temp}-${weather.condition}`"
+          :class="`flex-shrink-0 w-72 h-40 bg-gradient-to-br ${getBackgroundGradient(weather.condition)} rounded-2xl p-4 text-white shadow-lg relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer`"
         >
           <!-- Background decoration -->
-          <div class="absolute -top-6 -right-7 w-16 h-16 bg-gray-300 bg-opacity-10 rounded-full"></div>
-          <div class="absolute -bottom-8 -left-2 w-12 h-12 bg-gray-200 bg-opacity-10 rounded-full"></div>
+          <div class="absolute -top-6 -right-7 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
+          <div class="absolute -bottom-8 -left-2 w-12 h-12 bg-white bg-opacity-10 rounded-full"></div>
           
           <!-- Content -->
-          <div class="hover:scale-110 transition duration-300 relative z-10 p-2 h-full flex flex-col justify-between">
+          <div class="relative z-10 p-2 h-full flex flex-col justify-between">
             <div>
               <div class="mb-2">
                 <component :is="getWeatherIcon(weather.condition)" class="w-8 h-8" />
@@ -57,32 +61,50 @@
                 {{ weather.city }}
               </div>
               <div class="text-xs opacity-75 capitalize">
-                ({{ weather.description }})
+                {{ weather.description }}
+              </div>
+              <div class="text-xs opacity-60 mt-1">
+                {{ weather.country }}
               </div>
             </div>
             
-            <div class="text-5xl font-bold">
-              {{ weather.temp }}°
+            <div class="text-4xl font-bold">
+              {{ weather.temp }}°C
             </div>
           </div>
         </div>
       </div>
-
 
       <!-- Refresh Button -->
       <div class="mt-6 text-center">
         <button
           @click="refreshWeather"
           :disabled="loading"
-          class="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg transition-colors duration-200 font-medium"
+          class="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg transition-colors duration-200 font-medium flex items-center space-x-2 mx-auto"
         >
-          {{ loading ? 'Loading...' : 'Refresh Weather Data' }}
+          <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>{{ loading ? 'Loading...' : 'Refresh Weather Data' }}</span>
         </button>
+      </div>
+
+      <!-- Last Updated -->
+      <div class="mt-2 text-center text-sm text-gray-500">
+        Last updated: {{ lastUpdated }}
       </div>
 
       <!-- Error Message -->
       <div v-if="error" class="mt-4 bg-red-50 border-l-4 border-red-400 p-4 rounded">
         <p class="text-red-700">{{ error }}</p>
+      </div>
+
+      <!-- API Notice -->
+      <div v-if="!apiKey" class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+        <p class="text-blue-700">
+          <strong>Demo Mode:</strong> Using realistic mock data that updates on each refresh. Add your OpenWeatherMap API key to .env file as VITE_OPENWEATHER_API_KEY for real-time data.
+        </p>
       </div>
     </div>
   </div>
@@ -91,15 +113,15 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// Weather Icons (you can replace these with your preferred icon library)
+// Weather Icons
 const SunIcon = {
   template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-400"><circle cx="12" cy="12" r="5"/><path d="m12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
 }
 const CloudIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-gray-400"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-gray-300"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>'
 }
 const RainIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-400"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="m12 19l-2-3h4l-2 3zm-4-6l-2-3h4l-2 3zm8 0l-2-3h4l-2 3z"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-300"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="m12 19l-2-3h4l-2 3zm-4-6l-2-3h4l-2 3zm8 0l-2-3h4l-2 3z"/></svg>'
 }
 const SnowIcon = {
   template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-200"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="M12 17h.01M8 17h.01M16 17h.01M12 21h.01M8 21h.01M16 21h.01"/></svg>'
@@ -112,25 +134,76 @@ const StormIcon = {
 const weatherData = ref([])
 const loading = ref(true)
 const error = ref(null)
-const apiKey = ref(import.meta.env.VITE_OPENWEATHER_API_KEY)
+const lastUpdated = ref('')
+const apiKey = ref(import.meta.env?.VITE_OPENWEATHER_API_KEY || null)
 
-// Countries to fetch weather for
+// Countries list
 const countries = [
   { name: 'Canada', city: 'Toronto' },
   { name: 'Australia', city: 'Sydney' },
   { name: 'Japan', city: 'Tokyo' },
   { name: 'UK', city: 'London' },
-  { name: 'France', city: 'Paris' }
+  { name: 'France', city: 'Paris' },
+  { name: 'USA', city: 'New York' },
+  { name: 'Germany', city: 'Berlin' },
+  { name: 'India', city: 'Mumbai' },
+  { name: 'Brazil', city: 'Rio de Janeiro' },
+  { name: 'Singapore', city: 'Singapore' },
+  { name: 'Russia', city: 'Moscow' },
+  { name: 'UAE', city: 'Dubai' }
 ]
 
-// Mock data for demonstration
-const mockWeatherData = [
-  { country: 'Canada', city: 'Toronto', temp: 18, condition: 'cloudy', description: 'Cloudy' },
-  { country: 'Australia', city: 'Sydney', temp: 25, condition: 'sunny', description: 'Sunny' },
-  { country: 'Japan', city: 'Tokyo', temp: 10, condition: 'rainy', description: 'Light Rain' },
-  { country: 'UK', city: 'London', temp: 15, condition: 'cloudy', description: 'Overcast' },
-  { country: 'France', city: 'Paris', temp: 20, condition: 'sunny', description: 'Clear Sky' }
+// Base mock data with seasonal variations
+const baseMockData = [
+  { country: 'Canada', city: 'Toronto', baseTemp: 18, condition: 'cloudy', description: 'Partly Cloudy' },
+  { country: 'Australia', city: 'Sydney', baseTemp: 22, condition: 'sunny', description: 'Clear Sky' },
+  { country: 'Japan', city: 'Tokyo', baseTemp: 24, condition: 'cloudy', description: 'Partly Cloudy' },
+  { country: 'UK', city: 'London', baseTemp: 15, condition: 'rainy', description: 'Light Rain' },
+  { country: 'France', city: 'Paris', baseTemp: 20, condition: 'sunny', description: 'Clear Sky' },
+  { country: 'USA', city: 'New York', baseTemp: 26, condition: 'sunny', description: 'Sunny' },
+  { country: 'Germany', city: 'Berlin', baseTemp: 17, condition: 'cloudy', description: 'Overcast' },
+  { country: 'India', city: 'Mumbai', baseTemp: 31, condition: 'sunny', description: 'Hot and Humid' },
+  { country: 'Brazil', city: 'Rio de Janeiro', baseTemp: 28, condition: 'sunny', description: 'Tropical Sun' },
+  { country: 'Singapore', city: 'Singapore', baseTemp: 29, condition: 'stormy', description: 'Thunderstorms' },
+  { country: 'Russia', city: 'Moscow', baseTemp: 12, condition: 'snowy', description: 'Light Snow' },
+  { country: 'UAE', city: 'Dubai', baseTemp: 37, condition: 'sunny', description: 'Very Hot' }
 ]
+
+// Generate realistic varying mock data
+const generateMockWeatherData = () => {
+  const conditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'stormy']
+  const descriptions = {
+    sunny: ['Clear Sky', 'Sunny', 'Bright Sun', 'Perfect Weather'],
+    cloudy: ['Partly Cloudy', 'Overcast', 'Cloudy', 'Grey Skies'],
+    rainy: ['Light Rain', 'Heavy Rain', 'Drizzle', 'Shower'],
+    snowy: ['Light Snow', 'Heavy Snow', 'Snow Flurries', 'Blizzard'],
+    stormy: ['Thunderstorms', 'Storm', 'Lightning', 'Severe Weather']
+  }
+
+  return baseMockData.map(city => {
+    // Add some temperature variation (-5 to +5 degrees)
+    const tempVariation = Math.floor(Math.random() * 11) - 5
+    const newTemp = city.baseTemp + tempVariation
+    
+    // Randomly change conditions sometimes (70% keep original, 30% random)
+    const keepOriginalCondition = Math.random() > 0.3
+    const newCondition = keepOriginalCondition 
+      ? city.condition 
+      : conditions[Math.floor(Math.random() * conditions.length)]
+    
+    const newDescription = descriptions[newCondition][
+      Math.floor(Math.random() * descriptions[newCondition].length)
+    ]
+
+    return {
+      country: city.country,
+      city: city.city,
+      temp: Math.max(-10, Math.min(50, newTemp)), // Keep realistic temperature range
+      condition: newCondition,
+      description: newDescription
+    }
+  })
+}
 
 // Helper functions
 const getWeatherIcon = (condition) => {
@@ -171,56 +244,82 @@ const getCondition = (weatherMain) => {
   return conditions[weatherMain.toLowerCase()] || 'cloudy'
 }
 
-// Fetch weather data
+const updateLastUpdated = () => {
+  const now = new Date()
+  lastUpdated.value = now.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+}
+
+// Fetch weather data with proper reactivity
 const fetchWeatherData = async () => {
-  if (!apiKey.value) {
-    console.warn('API key not found. Make sure VITE_OPENWEATHER_API_KEY is set in your .env file')
-    // Use mock data if no API key is provided
-    setTimeout(() => {
-      weatherData.value = mockWeatherData
-      loading.value = false
-    }, 1000)
-    return
-  }
-
+  loading.value = true
+  error.value = null
+  
   try {
-    error.value = null
-    const promises = countries.map(async (country) => {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${country.city}&appid=${apiKey.value}&units=metric`
-      )
-      const data = await response.json()
+    if (!apiKey.value) {
+      console.log('No API key found. Using dynamic mock data.')
       
-      if (response.ok) {
-        return {
-          country: country.name,
-          city: country.city,
-          temp: Math.round(data.main.temp),
-          condition: getCondition(data.weather[0].main),
-          description: data.weather[0].description
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Generate new mock data each time
+      const newMockData = generateMockWeatherData()
+      weatherData.value = [...newMockData] // Force reactivity with spread operator
+      updateLastUpdated()
+      
+    } else {
+      // Real API call
+      const promises = countries.map(async (country) => {
+        try {
+          const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${country.city}&appid=${apiKey.value}&units=metric`
+          )
+          const data = await response.json()
+          
+          if (response.ok) {
+            return {
+              country: country.name,
+              city: country.city,
+              temp: Math.round(data.main.temp),
+              condition: getCondition(data.weather[0].main),
+              description: data.weather[0].description
+            }
+          } else {
+            throw new Error(data.message)
+          }
+        } catch (cityError) {
+          console.error(`Error fetching ${country.city}:`, cityError)
+          // Return mock data for this specific city
+          const mockCity = baseMockData.find(mock => mock.city === country.city)
+          return {
+            country: country.name,
+            city: country.city,
+            temp: mockCity ? mockCity.baseTemp : 20,
+            condition: mockCity ? mockCity.condition : 'cloudy',
+            description: 'Data unavailable'
+          }
         }
-      } else {
-        throw new Error(`Failed to fetch data for ${country.city}: ${data.message}`)
-      }
-    })
+      })
 
-    const results = await Promise.all(promises)
-    weatherData.value = results
+      const results = await Promise.all(promises)
+      weatherData.value = [...results] // Force reactivity
+      updateLastUpdated()
+    }
   } catch (err) {
     console.error('Weather fetch error:', err)
-    // Only set error if it's a real API issue, not just fallback to mock data
-    if (!err.message.includes('Failed to fetch data')) {
-      error.value = err.message
-    }
-    // Fallback to mock data on error
-    weatherData.value = mockWeatherData
+    error.value = 'Failed to fetch weather data. Please try again.'
+    // Fallback to mock data
+    weatherData.value = [...generateMockWeatherData()]
+    updateLastUpdated()
   } finally {
     loading.value = false
   }
 }
 
 const refreshWeather = () => {
-  loading.value = true
   fetchWeatherData()
 }
 

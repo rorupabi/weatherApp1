@@ -1,13 +1,13 @@
 <template>
-    <div class="bg-gradient-to-br from-purple-500 m-5 p-4 rounded-xl to-indigo-400 flex flex-col">
-        <nav class="relative bg-gradient-to-br rounded-2xl from-purple-700 to-indigo-300 flex items-center text-white font-bold p-4 mb-4 justify-between w-full py-8 top-2">
+    <div class="bg-gradient-to-br from-purple-500 to-indigo-400 m-5 p-4 rounded-xl relative z-10 mb-8">
+        <nav class="relative bg-gradient-to-br rounded-2xl from-purple-700 to-indigo-300 flex items-center text-white font-bold p-4 mb-4 justify-between w-full py-6">
             <button class="text-2xl font-semibold cursor-pointer hover:text-3xl duration-300">
                 <span class="text-white">Hourly Forecast</span>
             </button>
         </nav>
 
         <!-- Forecast Navigation -->
-        <div class="px-12 mb-4">
+        <div class="px-6 mb-4">
             <div class="flex items-center justify-between">
                 <div class="flex space-x-6">
                     <button 
@@ -38,8 +38,20 @@
             </div>
         </div>
 
+        <!-- Loading State -->
+        <div v-if="isLoading" class="px-6 pb-6">
+            <div class="flex space-x-4 overflow-x-hidden">
+                <div 
+                    v-for="i in 4" 
+                    :key="`loading-${i}`"
+                    class="flex-shrink-0 bg-white/20 backdrop-blur-md rounded-3xl p-6 min-w-[280px] h-[300px] animate-pulse"
+                >
+                </div>
+            </div>
+        </div>
+
         <!-- Swiper Container with Drag Support -->
-        <div class="p-10 px-12">
+        <div v-else class="px-6 pb-6">
             <div 
                 ref="swiperContainer" 
                 class="overflow-x-auto scroll-smooth scrollbar-hide cursor-grab active:cursor-grabbing transition-all duration-300"
@@ -50,29 +62,29 @@
                 @dragstart.prevent
                 :style="{ transform: isDragging ? 'scale(0.98)' : 'scale(1)' }"
             >
-                <div class="flex space-x-8 pb-4" style="width: max-content;">
+                <div class="flex space-x-6 pb-4" style="width: max-content;">
                     <!-- Today's Hourly Forecast -->
                     <div 
                         v-if="activeTab === 'today'"
                         v-for="(forecast, index) in hourlyForecast" 
                         :key="'hourly-' + index"
-                        class="flex-shrink-0 bg-white/20 backdrop-blur-md rounded-3xl p-6 min-w-[320px] text-center hover:bg-white/40 hover:scale-105 transition-all duration-300 cursor-pointer select-none transform"
+                        class="flex-shrink-0 bg-white/20 backdrop-blur-md rounded-3xl p-5 min-w-[280px] text-center hover:bg-white/30 hover:scale-105 transition-all duration-300 cursor-pointer select-none transform"
                     >
                         <!-- Time badges -->
                         <div class="flex justify-center space-x-1 mb-4">
-                            <span class="bg-indigo-600 text-white text-lg px-5 py-1 rounded-full font-medium">
+                            <span class="bg-indigo-600 text-white text-sm px-4 py-1 rounded-full font-medium">
                                 {{ forecast.day }}
                             </span>
-                            <span class="bg-indigo-600 text-white text-lg px-3 py-1 rounded-full font-medium">
+                            <span class="bg-indigo-600 text-white text-sm px-3 py-1 rounded-full font-medium">
                                 {{ forecast.time }}
                             </span>
                         </div>
 
                         <!-- Weather Icon -->
-                        <div class="mb-2 flex justify-center">
+                        <div class="mb-3 flex justify-center">
                             <div class="relative">
                                 <div 
-                                    class="w-24 h-24 rounded-full flex items-center justify-center text-5xl"
+                                    class="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
                                     :class="getWeatherIconBg(forecast.condition, forecast.time)"
                                 >
                                     {{ getWeatherIcon(forecast.condition, forecast.time) }}
@@ -82,8 +94,8 @@
 
                         <!-- Temperature -->
                         <div class="mb-4">
-                            <div class="text-white text-4xl font-bold mb-1 ml-3">{{ forecast.temp }}°</div>
-                            <div class="text-white/70 text-md">{{ forecast.feelsLike }}°</div>
+                            <div class="text-white text-3xl font-bold mb-1">{{ forecast.temp }}°</div>
+                            <div class="text-white/70 text-sm">Feels like {{ forecast.feelsLike }}°</div>
                         </div>
 
                         <!-- Weather details -->
@@ -103,7 +115,7 @@
                         </div>
 
                         <!-- Condition -->
-                        <div class="mt-2">
+                        <div class="mt-3">
                             <div class="text-white/90 text-sm font-medium">{{ forecast.condition }}</div>
                         </div>
                     </div>
@@ -113,20 +125,20 @@
                         v-if="activeTab === 'weekly'"
                         v-for="(forecast, index) in weeklyForecast" 
                         :key="'weekly-' + index"
-                        class="flex-shrink-0 bg-white/20 backdrop-blur-md rounded-3xl p-6 min-w-[320px] text-center hover:bg-white/40 hover:scale-105 transition-all duration-300 cursor-pointer select-none transform"
+                        class="flex-shrink-0 bg-white/20 backdrop-blur-md rounded-3xl p-5 min-w-[280px] text-center hover:bg-white/30 hover:scale-105 transition-all duration-300 cursor-pointer select-none transform"
                     >
                         <!-- Date badge -->
                         <div class="flex justify-center mb-4">
-                            <span class="bg-indigo-600 text-white text-lg px-6 py-2 rounded-full font-medium">
+                            <span class="bg-indigo-600 text-white text-sm px-5 py-2 rounded-full font-medium">
                                 {{ forecast.date }}
                             </span>
                         </div>
 
                         <!-- Weather Icon -->
-                        <div class="mb-2 flex justify-center">
+                        <div class="mb-3 flex justify-center">
                             <div class="relative">
                                 <div 
-                                    class="w-24 h-24 rounded-full flex items-center justify-center text-5xl bg-yellow-500/30"
+                                    class="w-20 h-20 rounded-full flex items-center justify-center text-4xl bg-yellow-500/30"
                                 >
                                     {{ forecast.icon }}
                                 </div>
@@ -135,7 +147,7 @@
 
                         <!-- Temperature Range -->
                         <div class="mb-4">
-                            <div class="text-white text-3xl font-bold mb-1">{{ forecast.maxTemp }}° / {{ forecast.minTemp }}°</div>
+                            <div class="text-white text-2xl font-bold mb-1">{{ forecast.maxTemp }}° / {{ forecast.minTemp }}°</div>
                             <div class="text-white/70 text-sm">High / Low</div>
                         </div>
 
@@ -156,11 +168,18 @@
                         </div>
 
                         <!-- Condition -->
-                        <div class="mt-2">
+                        <div class="mt-3">
                             <div class="text-white/90 text-sm font-medium">{{ forecast.condition }}</div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="error" class="px-6 pb-4">
+            <div class="bg-red-500/20 border border-red-400/30 rounded-lg p-3">
+                <p class="text-white text-sm">{{ error }}</p>
             </div>
         </div>
     </div>
@@ -174,7 +193,7 @@ export default {
             isDragging: false,
             startX: 0,
             scrollLeft: 0,
-            isLoading: false,
+            isLoading: true,
             error: null,
             activeTab: 'today', // 'today' or 'weekly'
             hourlyForecast: [],
@@ -218,7 +237,7 @@ export default {
                     console.log('Using default location (Manila) for weekly forecast');
                 }
 
-                const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
+                const API_KEY = import.meta.env?.VITE_OPENWEATHER_API_KEY;
                 if (!API_KEY) {
                     throw new Error('API key not found');
                 }
@@ -354,7 +373,7 @@ export default {
                     console.log('Using default location (Manila)');
                 }
 
-                const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
+                const API_KEY = import.meta.env?.VITE_OPENWEATHER_API_KEY;
                 if (!API_KEY) {
                     throw new Error('API key not found');
                 }
@@ -419,63 +438,63 @@ export default {
         getSampleData() {
             return [
                 {
-                    day: 'SUN',
-                    time: '4:00PM',
-                    temp: 23,
+                    day: 'WED',
+                    time: '4:00 PM',
+                    temp: 27,
                     feelsLike: 30,
+                    condition: 'Moderate rain',
+                    windSpeed: 30,
+                    humidity: 87,
+                    location: 'Manila'
+                },
+                {
+                    day: 'THU',
+                    time: '2:00 AM',
+                    temp: 26,
+                    feelsLike: 28,
                     condition: 'Light rain',
-                    windSpeed: 45,
-                    humidity: 70,
+                    windSpeed: 31,
+                    humidity: 87,
                     location: 'Manila'
                 },
                 {
-                    day: 'SUN',
-                    time: '5:00PM',
-                    temp: 22,
+                    day: 'THU',
+                    time: '5:00 AM',
+                    temp: 26,
                     feelsLike: 28,
-                    condition: 'Light Sun',
-                    windSpeed: 45,
-                    humidity: 70,
+                    condition: 'Overcast clouds',
+                    windSpeed: 28,
+                    humidity: 86,
                     location: 'Manila'
                 },
                 {
-                    day: 'SUN',
-                    time: '6:00PM',
-                    temp: 20,
-                    feelsLike: 25,
-                    condition: 'Light Rain',
-                    windSpeed: 45,
-                    humidity: 70,
+                    day: 'THU',
+                    time: '8:00 AM',
+                    temp: 27,
+                    feelsLike: 30,
+                    condition: 'Overcast clouds',
+                    windSpeed: 31,
+                    humidity: 77,
                     location: 'Manila'
                 },
                 {
-                    day: 'SUN',
-                    time: '7:00PM',
-                    temp: 20,
-                    feelsLike: 25,
-                    condition: 'Cloudy',
-                    windSpeed: 45,
-                    humidity: 70,
-                    location: 'Manila'
-                },
-                {
-                    day: 'MON',
-                    time: '8:00AM',
-                    temp: 24,
-                    feelsLike: 28,
-                    condition: 'Sunny',
-                    windSpeed: 35,
+                    day: 'THU',
+                    time: '11:00 AM',
+                    temp: 31,
+                    feelsLike: 35,
+                    condition: 'Partly cloudy',
+                    windSpeed: 25,
                     humidity: 65,
                     location: 'Manila'
                 },
                 {
-                    day: 'MON',
-                    time: '12:00PM',
-                    temp: 28,
-                    feelsLike: 32,
-                    condition: 'Partly Cloudy',
-                    windSpeed: 40,
-                    humidity: 60,
+                    day: 'THU',
+                    time: '2:00 PM',
+                    temp: 33,
+                    feelsLike: 38,
+                    condition: 'Sunny',
+                    windSpeed: 20,
+                    humidity: 58,
                     location: 'Manila'
                 }
             ];
@@ -498,11 +517,13 @@ export default {
             if (isNightTime) {
                 const nightIconMap = {
                     'Light rain': '🌧️',
+                    'Moderate rain': '🌧️',
                     'Light Sun': '🌙',
                     'Light Rain': '🌧️',
                     'Cloudy': '🌙',
                     'Sunny': '🌙',
                     'Partly Cloudy': '🌙',
+                    'Partly cloudy': '🌙',
                     'Clear': '🌙',
                     'Overcast clouds': '☁️',
                     'Broken clouds': '☁️',
@@ -513,11 +534,13 @@ export default {
             } else {
                 const dayIconMap = {
                     'Light rain': '🌦️',
+                    'Moderate rain': '🌧️',
                     'Light Sun': '🌤️',
                     'Light Rain': '🌧️',
                     'Cloudy': '☁️',
                     'Sunny': '☀️',
                     'Partly Cloudy': '⛅',
+                    'Partly cloudy': '⛅',
                     'Clear': '☀️',
                     'Overcast clouds': '☁️',
                     'Broken clouds': '⛅',
@@ -533,11 +556,13 @@ export default {
             if (isNightTime) {
                 const nightBgMap = {
                     'Light rain': 'bg-blue-600/30',
+                    'Moderate rain': 'bg-blue-700/30',
                     'Light Sun': 'bg-indigo-600/30',
                     'Light Rain': 'bg-blue-600/30',
                     'Cloudy': 'bg-indigo-600/30',
                     'Sunny': 'bg-indigo-600/30',
                     'Partly Cloudy': 'bg-indigo-500/30',
+                    'Partly cloudy': 'bg-indigo-500/30',
                     'Clear': 'bg-indigo-600/30',
                     'Overcast clouds': 'bg-gray-600/30',
                     'Broken clouds': 'bg-indigo-500/30',
@@ -548,11 +573,13 @@ export default {
             } else {
                 const dayBgMap = {
                     'Light rain': 'bg-blue-400/30',
+                    'Moderate rain': 'bg-blue-500/30',
                     'Light Sun': 'bg-yellow-400/30',
                     'Light Rain': 'bg-blue-500/30',
                     'Cloudy': 'bg-gray-500/30',
                     'Sunny': 'bg-yellow-500/30',
                     'Partly Cloudy': 'bg-gray-400/30',
+                    'Partly cloudy': 'bg-gray-400/30',
                     'Clear': 'bg-yellow-500/30',
                     'Overcast clouds': 'bg-gray-500/30',
                     'Broken clouds': 'bg-gray-400/30',
@@ -563,12 +590,12 @@ export default {
             }
         },
         isNightTime(timeString) {
-            // Extract hour from time string (e.g., "6:00PM" -> 18)
-            const timeParts = timeString.match(/(\d+):(\d+)(AM|PM)/);
+            // Extract hour from time string (e.g., "6:00 PM" -> 18)
+            const timeParts = timeString.match(/(\d+):(\d+)\s*(AM|PM)/i);
             if (!timeParts) return false;
             
             let hour = parseInt(timeParts[1]);
-            const period = timeParts[3];
+            const period = timeParts[3].toUpperCase();
             
             // Convert to 24-hour format
             if (period === 'PM' && hour !== 12) {

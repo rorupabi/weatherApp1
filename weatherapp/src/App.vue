@@ -11,7 +11,3 @@ import  Main  from './pages/main.vue'
 <style scoped>
 
 </style>
-
-<style scoped>
-
-</style>
