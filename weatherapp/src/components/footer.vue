@@ -97,7 +97,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
                         <div class="mb-4 md:mb-0">
                             <p>© 2025 Forecast<span class="text-yellow-400">.27</span> All rights reserved.</p>
-                            <p class="text-xs mt-1">Made with ❤️ by dev Roru, dev Carl, & dev Tras</p>
+                            <p class="text-xs mt-1">Made with ❤️ by dev Roru, dev Carl, dev Mikey & dev Tras</p>
                         </div>
                         
                         <div class="flex space-x-6">
