@@ -1,6 +1,6 @@
 <template>
-    <nav class="bg-gradient-to-br from-purple-500 to-indigo-300 flex items-center text-white p-12 mb-4 justify-between w-full py-8 top-0 sticky z-50">
-      <button @click="scrollToTop" class="text-xl font-semibold cursor-pointer hover:text-2xl duration-300">
+    <nav class="bg-gradient-to-br from-purple-800 to-indigo-400 flex items-center text-white p-12 mb-4 justify-between w-full py-8 top-0 sticky z-50 transition duration-300">
+      <button @click="scrollToTop" class="text-2xl font-semibold cursor-pointer hover:text-3xl duration-300">
         <span class="text-white font-bold">Forecast</span><span class="text-yellow-300 text-2xl">.27</span>
       </button>
       

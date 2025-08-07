@@ -1,6 +1,6 @@
 <template>
     <div>
-  <div class="bg-cover bg-center min-h-[50vh]" :style="{ backgroundImage: `url(${Trees})` }">
+  <div class="bg-cover bg-center min-h-[60vh]" :style="{ backgroundImage: `url(${Trees})` }">
     <!-- Content container -->
     <div class="flex flex-col items-center justify-center h-full text-white p-8 min-h-[50vh]">
       <!-- Main title -->
