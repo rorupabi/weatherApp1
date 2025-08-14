@@ -1,12 +1,13 @@
 <template>
     <div class="bg-gray-200">
-        <Navbar/>
-        <WeatherHeader/>
-        <HourlyForecast/>
-        <WeatherDiffCountries/>
-        <Footer/>
+        <Navbar />
+        <WeatherHeader />
+        <HourlyForecast />
+        <WeatherDiffCountries />
+        <Contacts />
+        <Footer />
     </div>
-  
+
 </template>
 
 <script setup>
@@ -17,6 +18,6 @@ import WeatherHeader from '../components/weatherHeader.vue';
 import Footer from '../components/footer.vue';
 import HourlyForecast from '../components/hourlyWeeklyForecast.vue';
 import WeatherDiffCountries from '../components/weatherDiffCountries.vue';
-
+import Contacts from '../components/contacts.vue';
 
 </script>
