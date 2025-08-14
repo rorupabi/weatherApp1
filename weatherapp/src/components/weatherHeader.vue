@@ -462,7 +462,7 @@ export default {
                     }, 
                     (error) => {
                         let message = 'Location unavailable';
-                        switch(error.code) {
+                        switch (error.code) {
                             case error.PERMISSION_DENIED:
                                 message = 'Location permission denied';
                                 break;
@@ -500,8 +500,8 @@ export default {
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`API returned ${response.status}: ${errorText}`);
-                } 
-                
+                }
+
                 const data = await response.json();
                 this.updateWeatherData(data);
             } catch (error) {

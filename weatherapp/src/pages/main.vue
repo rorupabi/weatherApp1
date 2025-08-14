@@ -7,8 +7,9 @@
         <EnvironmentalistTopic/>
         <AboutUs/>
         <Footer/>
+        <Contacts />
     </div>
-  
+
 </template>
 
 <script setup>
@@ -22,5 +23,6 @@ import HourlyForecast from '../components/hourlyWeeklyForecast.vue';
 import WeatherDiffCountries from '../components/weatherDiffCountries.vue';
 import EnvironmentalistTopic from '../components/environmentTopic.vue';
 import AboutUs from '../components/aboutUs.vue';
+import Contacts from '../components/contacts.vue';
 
 </script>
