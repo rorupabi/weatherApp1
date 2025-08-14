@@ -5,6 +5,7 @@
         <HourlyForecast/>
         <WeatherDiffCountries/>
         <EnvironmentalistTopic/>
+        <AboutUs/>
         <Footer/>
     </div>
   
@@ -20,6 +21,6 @@ import Footer from '../components/footer.vue';
 import HourlyForecast from '../components/hourlyWeeklyForecast.vue';
 import WeatherDiffCountries from '../components/weatherDiffCountries.vue';
 import EnvironmentalistTopic from '../components/environmentTopic.vue';
-
+import AboutUs from '../components/aboutUs.vue';
 
 </script>

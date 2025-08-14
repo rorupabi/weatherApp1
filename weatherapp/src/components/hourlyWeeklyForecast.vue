@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-gradient-to-br from-purple-500 to-indigo-400 m-5 p-4 rounded-xl relative z-10 mb-8">
-        <nav class="relative bg-gradient-to-br rounded-2xl from-purple-700 to-indigo-300 flex items-center text-white font-bold p-4 mb-4 justify-between w-full py-6">
+    <div class="bg-gradient-to-br from-purple-700 to-blue-400 m-5 p-4 rounded-xl relative z-10 mb-8">
+        <nav class="relative bg-gradient-to-br rounded-2xl from-purple-700 to-indigo-300 flex items-center text-white font-bold p-4 mb-2 justify-between w-full py-6">
             <button class="text-2xl font-semibold cursor-pointer hover:text-3xl duration-300">
                 <span class="text-white">Hourly Forecast</span>
             </button>

@@ -1,27 +1,46 @@
 <template>
     <!--<Weather Info />-->
-    <div class="flex flex-col lg:flex-row gap-4 m-4 max-w-6xl mx-auto">
+    <div class="flex flex-col lg:flex-row gap-4 m-4 max-w-6xl mx-auto pt-26">
         <!-- Main Weather Card -->
         <div class="bg-gradient-to-br from-purple-600 via-blue-500 to-teal-600 p-4 rounded-2xl shadow-lg flex-1 max-h-64 hover:shadow-xl transition-shadow duration-300">
             <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-4 h-full">
                 
-                <!-- Header Section -->
-                <div class="mb-3">
-                    <h1 class="text-2xl font-bold text-white mb-2">{{ weatherData.location }}</h1>
-                    
-                    <div class="flex flex-row items-center space-x-4 mb-2 text-white text-xs">
-                        <div>{{ currentDate }}</div>
-                        <div>Updated {{ currentTime }}</div>
+                <!-- Header Section with Reset Button -->
+                <div class="mb-3 flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h1 class="text-2xl font-bold text-white">{{ weatherData.location }}</h1>
+                            <!-- Show indicator if using custom location -->
+                            <span v-if="isUsingCustomLocation" class="bg-yellow-500/20 text-yellow-200 px-2 py-1 rounded-full text-xs border border-yellow-500/30">
+                                Custom
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-row items-center space-x-4 mb-2 text-white text-xs">
+                            <div>{{ currentDate }}</div>
+                            <div>Updated {{ currentTime }}</div>
+                        </div>
                     </div>
                     
-                    <!-- Error/Loading Messages -->
-                    <div v-if="error && !isLoading" class="bg-red-500/20 text-white p-2 rounded-lg border border-red-500/30 text-xs">
-                        <p>{{ error }}</p>
-                    </div>
-                    
-                    <div v-if="isLoading" class="bg-blue-500/20 text-white p-2 rounded-lg border border-blue-500/30 text-xs">
-                        <p>Getting your weather...</p>
-                    </div>
+                    <!-- Reset to Default Location Button -->
+                    <button 
+                        v-if="isUsingCustomLocation" 
+                        @click="resetToDefaultLocation"
+                        :disabled="isLoading"
+                        class="bg-white/20 hover:bg-white/30 disabled:bg-white/10 text-white px-3 py-1 rounded-lg text-xs transition-all duration-200 disabled:cursor-not-allowed border border-white/30"
+                        title="Reset to your current location"
+                    >
+                        📍 Reset to My Location
+                    </button>
+                </div>
+                
+                <!-- Error/Loading Messages -->
+                <div v-if="error && !isLoading" class="bg-red-500/20 text-white p-2 rounded-lg border border-red-500/30 text-xs mb-3">
+                    <p>{{ error }}</p>
+                </div>
+                
+                <div v-if="isLoading" class="bg-blue-500/20 text-white p-2 rounded-lg border border-blue-500/30 text-xs mb-3">
+                    <p>Getting your weather...</p>
                 </div>
                 
                 <!-- Main Content - Compact Layout -->
@@ -207,12 +226,48 @@ export default {
                 visibility: '--',
                 condition: 'Loading...'
             },
+
+        async loadDefaultWeather() {
+            // Load default weather first, then try user location
+            console.log('Loading default weather...');
+            try {
+                await this.fetchWeatherByCity('Manila, Philippines');
+                console.log('Default weather loaded successfully');
+            } catch (error) {
+                console.error('Default weather failed:', error);
+                this.error = 'Unable to load weather data';
+            } finally {
+                this.isLoading = false;
+            }
+            
+            // Try to get user location in background (don't affect UI)
+            setTimeout(async () => {
+                try {
+                    const position = await this.getCurrentPosition();
+                    const { latitude, longitude } = position.coords;
+                    this.userLocation = { lat: latitude, lon: longitude };
+                    
+                    // Silently update to user location if we're still on default
+                    if (!this.isUsingCustomLocation) {
+                        await this.fetchWeatherByCoordinates(latitude, longitude);
+                        console.log('Quietly updated to user location');
+                    }
+                } catch (error) {
+                    console.log('Background user location failed:', error.message);
+                }
+            }, 2000);
+        },
             // Search functionality
             searchQuery: '',
             isSearching: false,
             searchError: null,
             searchResult: null,
-            quickCities: ['Tokyo, Japan', 'London, UK', 'New York, US', 'Sydney, AU']
+            quickCities: ['Tokyo, Japan', 'London, UK', 'New York, US', 'Sydney, AU'],
+            
+            // Location persistence
+            savedLocation: null,
+            userLocation: null,
+            isUsingCustomLocation: false
         };
     },
     async mounted() {
@@ -221,20 +276,41 @@ export default {
         
         this.updateDateTime();
         
-        console.log('Loading default weather...');
-        try {
-            await this.fetchWeatherByCity('Manila, Philippines');
-            console.log('Default weather loaded successfully');
-        } catch (error) {
-            console.error('Even default weather failed:', error);
+        // Load saved location from localStorage
+        this.loadSavedLocation();
+        
+        // If we have a saved location, use it; otherwise get user's current location
+        if (this.savedLocation) {
+            console.log('Loading saved location:', this.savedLocation);
+            this.isUsingCustomLocation = true;
+            try {
+                if (this.savedLocation.type === 'city') {
+                    await this.fetchWeatherByCity(this.savedLocation.value);
+                } else if (this.savedLocation.type === 'coordinates') {
+                    await this.fetchWeatherByCoordinates(this.savedLocation.lat, this.savedLocation.lon);
+                }
+                console.log('Saved location loaded successfully');
+            } catch (error) {
+                console.error('Failed to load saved location, getting user location:', error);
+                this.clearSavedLocation(); // Clear invalid saved location
+                await this.loadDefaultWeather();
+            } finally {
+                this.isLoading = false;
+            }
+        } else {
+            await this.loadDefaultWeather();
         }
         
-        setTimeout(() => {
-            this.getUserLocationWeather();
-        }, 1000);
-        
         setInterval(this.updateDateTime, 60000);
-        setInterval(this.getUserLocationWeather, 600000);
+        
+        // Auto-refresh every 10 minutes, but respect custom location setting
+        setInterval(() => {
+            if (this.isUsingCustomLocation && this.savedLocation) {
+                this.refreshCurrentWeather();
+            } else {
+                this.getUserLocationWeather();
+            }
+        }, 600000);
     },
     methods: {
         updateDateTime() {
@@ -251,6 +327,98 @@ export default {
                 hour12: true
             });
         },
+
+        // localStorage methods for persistence
+        loadSavedLocation() {
+            try {
+                const saved = localStorage.getItem('weatherLocation');
+                if (saved) {
+                    this.savedLocation = JSON.parse(saved);
+                    console.log('Loaded saved location:', this.savedLocation);
+                }
+            } catch (error) {
+                console.error('Error loading saved location:', error);
+                // Clear corrupted data
+                localStorage.removeItem('weatherLocation');
+            }
+        },
+
+        saveLocation(locationData) {
+            try {
+                localStorage.setItem('weatherLocation', JSON.stringify(locationData));
+                this.savedLocation = locationData;
+                console.log('Saved location:', locationData);
+            } catch (error) {
+                console.error('Error saving location:', error);
+            }
+        },
+
+        clearSavedLocation() {
+            try {
+                localStorage.removeItem('weatherLocation');
+                this.savedLocation = null;
+                this.isUsingCustomLocation = false;
+                console.log('Cleared saved location');
+            } catch (error) {
+                console.error('Error clearing saved location:', error);
+            }
+        },
+
+        async refreshCurrentWeather() {
+            if (!this.savedLocation) return;
+            
+            try {
+                this.isLoading = true;
+                this.error = null;
+                
+                if (this.savedLocation.type === 'city') {
+                    await this.fetchWeatherByCity(this.savedLocation.value);
+                } else if (this.savedLocation.type === 'coordinates') {
+                    await this.fetchWeatherByCoordinates(this.savedLocation.lat, this.savedLocation.lon);
+                }
+            } catch (error) {
+                console.error('Error refreshing weather:', error);
+                this.error = 'Failed to refresh weather data';
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async resetToDefaultLocation() {
+            console.log('Resetting to default location...');
+            this.clearSavedLocation();
+            this.isLoading = true;
+            this.error = null;
+            
+            try {
+                // Try to get user's current location
+                const position = await this.getCurrentPosition();
+                const { latitude, longitude } = position.coords;
+                
+                console.log('Got user location:', latitude, longitude);
+                await this.fetchWeatherByCoordinates(latitude, longitude);
+                
+                this.isUsingCustomLocation = false;
+                console.log('Successfully reset to user location');
+                
+            } catch (locationError) {
+                console.log('User location failed:', locationError.message);
+                
+                // Fallback to Manila if user location fails
+                try {
+                    console.log('Using Manila as fallback...');
+                    await this.fetchWeatherByCity('Manila, Philippines');
+                    this.isUsingCustomLocation = false;
+                    console.log('Fallback to Manila successful');
+                } catch (fallbackError) {
+                    console.error('Even fallback failed:', fallbackError);
+                    this.error = 'Unable to load weather data. Please try again.';
+                }
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
         async getUserLocationWeather() {
             try {
                 this.isLoading = true;
@@ -259,16 +427,25 @@ export default {
                 const position = await this.getCurrentPosition();
                 const { latitude, longitude } = position.coords;
                 
+                // Store user location for future reference
+                this.userLocation = { lat: latitude, lon: longitude };
+                
                 await this.fetchWeatherByCoordinates(latitude, longitude);
                 
+                // Only mark as custom location if we actually have a saved location
+                this.isUsingCustomLocation = !!this.savedLocation;
+                
+                console.log('Successfully loaded user location weather');
+                
             } catch (error) {
-                console.log('User location failed, keeping default weather');
-                this.error = null;
+                console.log('User location failed, keeping current weather:', error.message);
+                this.error = null; // Don't show error for this, just keep current weather
                 
             } finally {
                 this.isLoading = false;
             }
         },
+
         getCurrentPosition() {
             return new Promise((resolve, reject) => {
                 if (!navigator.geolocation) {
@@ -276,8 +453,13 @@ export default {
                     return;
                 }
 
+                console.log('Requesting geolocation...');
+
                 navigator.geolocation.getCurrentPosition( 
-                    resolve, 
+                    (position) => {
+                        console.log('Geolocation success:', position.coords.latitude, position.coords.longitude);
+                        resolve(position);
+                    }, 
                     (error) => {
                         let message = 'Location unavailable';
                         switch(error.code) {
@@ -291,16 +473,18 @@ export default {
                                 message = 'Location request timed out';
                                 break;
                         }
+                        console.log('Geolocation error:', message, error);
                         reject(new Error(message));
                     }, 
                     { 
                         enableHighAccuracy: true, 
-                        timeout: 10000, 
+                        timeout: 15000, // Increased timeout
                         maximumAge: 300000 
                     }
                 );
             });      
         }, 
+        
         async fetchWeatherByCoordinates(lat, lon) {
             const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
             
@@ -324,6 +508,7 @@ export default {
                 throw error;
             }
         },
+
         async fetchWeatherByCity(cityName) {
             const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
             if (!API_KEY) {
@@ -355,6 +540,7 @@ export default {
                 throw error;
             }
         },
+
         updateWeatherData(data) {
             this.weatherData = {
                 location: `${data.name}, ${data.sys.country}`,
@@ -369,6 +555,7 @@ export default {
                           data.weather[0].description.slice(1)
             };
         },
+
         async searchWeather() {
             if (!this.searchQuery.trim()) return;
             
@@ -400,13 +587,22 @@ export default {
                     humidity: data.main.humidity,
                     windSpeed: Math.round(data.wind.speed * 3.6),
                     condition: data.weather[0].description.charAt(0).toUpperCase() + 
-                              data.weather[0].description.slice(1)
+                              data.weather[0].description.slice(1),
+                    // Store original data for saving
+                    originalQuery: this.searchQuery.trim()
                 };
                 
             } catch (error) {
                 this.searchError = error.message;
             } finally {
                 this.isSearching = false;
+            }
+        },
+
+        async clickOutside(event) {
+            const popup = this.$refs.searchPopup;
+            if (popup && !popup.contains(event.target)) {
+                this.clearSearch();
             }
         },
         
@@ -442,8 +638,21 @@ export default {
                     condition: this.searchResult.condition
                 };
                 
+                // Save this location as the preferred location
+                const locationData = {
+                    type: 'city',
+                    value: this.searchResult.originalQuery,
+                    displayName: this.searchResult.location,
+                    savedAt: new Date().toISOString()
+                };
+                
+                this.saveLocation(locationData);
+                this.isUsingCustomLocation = true;
+                
                 // Clear search
                 this.clearSearch();
+                
+                console.log('Set as main weather:', locationData);
             }
         }
     }

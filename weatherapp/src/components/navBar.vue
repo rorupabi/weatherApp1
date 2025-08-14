@@ -1,5 +1,5 @@
 <template>
-    <nav class="bg-gradient-to-br from-purple-800 to-indigo-400 flex items-center text-white p-12 mb-4 justify-between w-full py-8 top-0 sticky z-50 transition duration-300">
+    <nav class="bg-gradient-to-br from-purple-800 to-indigo-400 flex items-center text-white p-12 mb-4 justify-between w-full py-8 top-0 fixed z-50 transition duration-300">
       <button @click="scrollToTop" class="text-2xl font-semibold cursor-pointer hover:text-3xl duration-300">
         <span class="text-white font-bold">Forecast</span><span class="text-yellow-300 text-2xl">.27</span>
       </button>
@@ -9,10 +9,13 @@
           <a @click="scrollToTop" href="#" class="cursor-pointer">Home</a>
         </li>
         <li class="hover:text-2xl duration-300">
-          <a @click.prevent="scrollToSection('about')" href="#" class="cursor-pointer">News</a>
+          <a @click.prevent="scrollToSection('news')" href="#" class="cursor-pointer">News</a>
         </li>
         <li class="hover:text-2xl duration-300">
           <a @click.prevent="scrollToSection('contact')" href="#" class="cursor-pointer">Contact</a>
+        </li>
+        <li class="hover:text-2xl duration-300">
+          <a @click.prevent="scrollToSection('works')" href="#" class="cursor-pointer">About Us</a>
         </li>
       </ul>
 
@@ -26,10 +29,13 @@
             <a @click.prevent="goHome" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">Home</a>
           </li>
           <li>
-            <a @click.prevent="scrollToSection('about')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">News</a>
+            <a @click.prevent="scrollToSection('news')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">News</a>
           </li>
           <li>
             <a @click.prevent="scrollToSection('contact')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">Contact</a>
+          </li>
+          <li>
+            <a @click.prevent="scrollToSection('aboutus')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">About Us</a>
           </li>
         </ul>
       </div>

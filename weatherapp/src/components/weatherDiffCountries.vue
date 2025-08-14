@@ -1,30 +1,45 @@
 <template>
-  <div class="bg-gray-50 p-6 min-h-[50vh]">
-    <div class="max-w-7xl mx-auto">
+  <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-6 relative overflow-hidden">
+    <!-- Animated background elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-20 left-10 w-32 h-32 bg-blue-500 opacity-10 rounded-full blur-xl animate-pulse"></div>
+      <div class="absolute top-40 right-20 w-24 h-24 bg-purple-500 opacity-10 rounded-full blur-xl animate-pulse" style="animation-delay: 2s;"></div>
+      <div class="absolute bottom-20 left-1/4 w-40 h-40 bg-indigo-500 opacity-10 rounded-full blur-xl animate-pulse" style="animation-delay: 4s;"></div>
+      <div class="absolute bottom-40 right-1/3 w-28 h-28 bg-cyan-500 opacity-10 rounded-full blur-xl animate-pulse" style="animation-delay: 6s;"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
       <!-- Header Section -->
-      <div class="flex flex-col lg:flex-row justify-between items-start mb-8">
+      <div class="flex flex-col lg:flex-row justify-between items-start mb-8 gap-6">
         <div class="flex-1 p-8">
-          <h1 class="text-3xl font-bold text-gray-800 mb-2">Global Weather Dashboard</h1>
-          <p class="text-gray-600 max-w-md">
+          <h1 class="text-4xl font-bold text-white mb-3 drop-shadow-lg">Global Weather Dashboard</h1>
+          <p class="text-slate-300 max-w-md text-lg leading-relaxed">
             Real-time weather information from major cities around the world. 
             Data updates automatically to give you the most current conditions.
+          </p>
+          <p class="text-slate-400 text-sm mt-2">
             Developers standard time usage Singapore (GMT+8).
           </p>
         </div>
 
         <!-- Weather Comparison Panel -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg mt-6 lg:mt-0 lg:ml-8 min-w-64">
-          <h2 class="text-xl font-semibold mb-4 text-gray-800">Weather Comparison</h2>
+        <div class="backdrop-blur-md bg-gradient-to-br from-blue-800 to-purple-800 bg-opacity-10 p-6 rounded-3xl shadow-2xl mt-6 lg:mt-0 lg:ml-8 min-w-72 transition-all duration-300 hover:bg-opacity-15">
+          <h2 class="text-xl font-semibold mb-4 text-white flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Weather Comparison
+          </h2>
           <div class="space-y-3">
             <div 
               v-for="(weather, index) in weatherData.slice(0, 3)" 
               :key="`comparison-${weather.city}-${weather.temp}`" 
-              class="flex justify-between items-center"
+              class="flex justify-between items-center p-2 rounded-xl bg-gray-50 bg-opacity-10 backdrop-blur-sm transition-all duration-300 hover:bg-opacity-20"
             >
-              <span class="font-medium text-gray-700">{{ weather.country }}</span>
-              <div class="flex items-center space-x-2">
+              <span class="font-medium text-black">{{ weather.country }}</span>
+              <div class="flex items-center space-x-3">
                 <component :is="getWeatherIcon(weather.condition)" class="w-5 h-5" />
-                <span class="font-semibold text-gray-800">{{ weather.temp }}°C</span>
+                <span class="font-bold text-black text-lg">{{ weather.temp }}°C</span>
               </div>
             </div>
           </div>
@@ -32,44 +47,54 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex space-x-4 overflow-x-auto pb-4">
+      <div v-if="loading" class="flex space-x-6 overflow-x-auto pb-6">
         <div 
           v-for="i in 8" 
           :key="`loading-${i}`" 
-          class="flex-shrink-0 w-72 h-40 bg-gray-200 rounded-2xl animate-pulse"
+          class="flex-shrink-0 w-80 h-48 bg-white bg-opacity-10 backdrop-blur-md rounded-3xl animate-pulse border border-white border-opacity-20"
         ></div>
       </div>
 
       <!-- Weather Cards -->
-      <div v-else class="flex space-x-4 overflow-x-auto pb-4">
+      <div v-else class="flex space-x-6 overflow-x-auto pb-6 mb-8">
         <div
           v-for="(weather, index) in weatherData"
           :key="`weather-${weather.city}-${weather.temp}-${weather.condition}`"
-          :class="`flex-shrink-0 w-72 h-40 bg-gradient-to-br ${getBackgroundGradient(weather.condition)} rounded-2xl p-4 text-white shadow-lg relative overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer`"
+          :class="`flex-shrink-0 w-80 h-48 bg-gradient-to-br ${getBackgroundGradient(weather.condition)} rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-3xl cursor-pointer`"
+          style="box-shadow: 0 8px 32px rgba(0,0,0,0.3);"
         >
-          <!-- Background decoration -->
-          <div class="absolute -top-6 -right-7 w-16 h-16 bg-white bg-opacity-10 rounded-full"></div>
-          <div class="absolute -bottom-8 -left-2 w-12 h-12 bg-white bg-opacity-10 rounded-full"></div>
+          <!-- Background decoration with glassmorphism -->
+          <div class="absolute -top-8 -right-8 w-20 h-20 bg-white bg-opacity-20 rounded-full backdrop-blur-sm"></div>
+          <div class="absolute -bottom-10 -left-4 w-16 h-16 bg-white bg-opacity-15 rounded-full backdrop-blur-sm"></div>
+          <div class="absolute top-1/2 right-4 w-12 h-12 bg-white bg-opacity-10 rounded-full backdrop-blur-sm"></div>
           
           <!-- Content -->
-          <div class="relative z-10 p-2 h-full flex flex-col justify-between">
+          <div class="relative z-10 h-full flex flex-col justify-between">
             <div>
-              <div class="mb-2">
-                <component :is="getWeatherIcon(weather.condition)" class="w-8 h-8" />
+              <div class="flex items-center justify-between mb-4">
+                <component :is="getWeatherIcon(weather.condition)" class="w-10 h-10 drop-shadow-lg" />
+                <div class="text-right">
+                  <div class="text-sm opacity-80 font-medium">{{ weather.country }}</div>
+                  <div class="text-xs opacity-60">{{ new Date().toLocaleDateString() }}</div>
+                </div>
               </div>
-              <div class="text-lg font-medium opacity-100">
+              
+              <div class="text-2xl font-bold mb-2 drop-shadow-md">
                 {{ weather.city }}
               </div>
-              <div class="text-xs opacity-75 capitalize">
+              <div class="text-sm opacity-90 capitalize font-medium">
                 {{ weather.description }}
-              </div>
-              <div class="text-xs opacity-60 mt-1">
-                {{ weather.country }}
               </div>
             </div>
             
-            <div class="text-4xl font-bold">
-              {{ weather.temp }}°C
+            <div class="flex items-end justify-between">
+              <div class="text-5xl font-bold drop-shadow-lg">
+                {{ weather.temp }}°C
+              </div>
+              <div class="text-right">
+                <div class="text-xs opacity-70">Feels like</div>
+                <div class="text-sm font-semibold opacity-90">{{ weather.temp + Math.floor(Math.random() * 4 - 2) }}°C</div>
+              </div>
             </div>
           </div>
         </div>
@@ -80,31 +105,47 @@
         <button
           @click="refreshWeather"
           :disabled="loading"
-          class="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg transition-colors duration-200 font-medium flex items-center space-x-2 mx-auto"
+          class="backdrop-blur-md bg-slate-800 bg-opacity-40 border border-white border-opacity-20 hover:bg-opacity-60 disabled:bg-opacity-20 text-white px-8 py-4 rounded-2xl transition-all duration-300 font-semibold flex items-center space-x-3 mx-auto shadow-xl hover:shadow-2xl hover:scale-105"
         >
-          <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+          <svg v-if="loading" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
           <span>{{ loading ? 'Loading...' : 'Refresh Weather Data' }}</span>
         </button>
       </div>
 
       <!-- Last Updated -->
-      <div class="mt-2 text-center text-sm text-gray-500">
+      <div class="mt-4 text-center text-sm text-slate-300">
         Last updated: {{ lastUpdated }}
       </div>
 
       <!-- Error Message -->
-      <div v-if="error" class="mt-4 bg-red-50 border-l-4 border-red-400 p-4 rounded">
-        <p class="text-red-700">{{ error }}</p>
+      <div v-if="error" class="mt-6 backdrop-blur-md bg-red-900 bg-opacity-30 border border-red-400 border-opacity-50 p-4 rounded-xl">
+        <div class="flex">
+          <svg class="w-5 h-5 text-red-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-red-200">{{ error }}</p>
+        </div>
       </div>
 
       <!-- API Notice -->
-      <div v-if="!apiKey" class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-        <p class="text-blue-700">
-          <strong>Demo Mode:</strong> Using realistic mock data that updates on each refresh. Add your OpenWeatherMap API key to .env file as VITE_OPENWEATHER_API_KEY for real-time data.
-        </p>
+      <div v-if="!apiKey" class="mt-6 backdrop-blur-md bg-blue-900 bg-opacity-30 border border-blue-400 border-opacity-50 p-4 rounded-xl">
+        <div class="flex">
+          <svg class="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <p class="text-blue-200 font-semibold">Demo Mode</p>
+            <p class="text-blue-300 text-sm mt-1">
+              Using realistic mock data that updates on each refresh. Add your OpenWeatherMap API key to .env file as VITE_OPENWEATHER_API_KEY for real-time data.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -113,21 +154,21 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// Weather Icons
+// Weather Icons - Enhanced with better styling
 const SunIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-400"><circle cx="12" cy="12" r="5"/><path d="m12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-300 drop-shadow-lg"><circle cx="12" cy="12" r="5"/><path d="m12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
 }
 const CloudIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-gray-300"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-slate-200 drop-shadow-lg"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>'
 }
 const RainIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-300"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="m12 19l-2-3h4l-2 3zm-4-6l-2-3h4l-2 3zm8 0l-2-3h4l-2 3z"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-200 drop-shadow-lg"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="m12 19l-2-3h4l-2 3zm-4-6l-2-3h4l-2 3zm8 0l-2-3h4l-2 3z"/></svg>'
 }
 const SnowIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-200"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="M12 17h.01M8 17h.01M16 17h.01M12 21h.01M8 21h.01M16 21h.01"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-blue-100 drop-shadow-lg"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="M12 17h.01M8 17h.01M16 17h.01M12 21h.01M8 21h.01M16 21h.01"/></svg>'
 }
 const StormIcon = {
-  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-300"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="M13 13l-4 7 6-4-2-3z"/></svg>'
+  template: '<svg viewBox="0 0 24 24" fill="currentColor" class="text-yellow-200 drop-shadow-lg"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><path d="M13 13l-4 7 6-4-2-3z"/></svg>'
 }
 
 // Reactive data
@@ -205,7 +246,7 @@ const generateMockWeatherData = () => {
   })
 }
 
-// Helper functions
+// Helper functions - Enhanced color gradients
 const getWeatherIcon = (condition) => {
   const icons = {
     sunny: SunIcon,
@@ -221,15 +262,15 @@ const getWeatherIcon = (condition) => {
 
 const getBackgroundGradient = (condition) => {
   const gradients = {
-    sunny: 'from-orange-400 to-yellow-400',
-    clear: 'from-orange-400 to-yellow-400',
-    cloudy: 'from-gray-400 to-gray-600',
-    overcast: 'from-gray-400 to-gray-600',
-    rainy: 'from-blue-400 to-blue-600',
-    snowy: 'from-blue-200 to-blue-400',
-    stormy: 'from-purple-500 to-gray-700'
+    sunny: 'from-amber-400 via-orange-500 to-red-500',
+    clear: 'from-amber-400 via-orange-500 to-red-500',
+    cloudy: 'from-slate-500 via-slate-600 to-slate-700',
+    overcast: 'from-slate-500 via-slate-600 to-slate-700',
+    rainy: 'from-sky-500 via-blue-600 to-indigo-700',
+    snowy: 'from-sky-300 via-blue-400 to-blue-500',
+    stormy: 'from-purple-600 via-indigo-700 to-slate-800'
   }
-  return gradients[condition] || 'from-gray-400 to-gray-600'
+  return gradients[condition] || 'from-slate-500 via-slate-600 to-slate-700'
 }
 
 const getCondition = (weatherMain) => {
@@ -263,7 +304,7 @@ const fetchWeatherData = async () => {
       console.log('No API key found. Using dynamic mock data.')
       
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 1200))
       
       // Generate new mock data each time
       const newMockData = generateMockWeatherData()
@@ -332,20 +373,20 @@ onMounted(() => {
 <style scoped>
 /* Custom scrollbar for horizontal scroll */
 .overflow-x-auto::-webkit-scrollbar {
-  height: 4px;
+  height: 6px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: rgba(255, 255, 255, 0.5);
 }
 </style>
