@@ -24,25 +24,22 @@
         <span class="text-xl">{{ isMobileMenuOpen ? '✕' : '☰' }}</span>
       </button>
 
-      <div v-if="isMobileMenuOpen" class="absolute top-full left-0 right-0 md:hidden bg-gray-400 text-white shadow-lg border-t border-gray-300">
-        <ul class="flex flex-col space-y-2 p-4">
-          <ul class="flex flex-col space-y-2 p-4">
+      <div v-if="isMobileMenuOpen" class="absolute top-full left-0 right-0 md:hidden bg-blue-900 text-white shadow-lg">
+        <ul class="flex flex-row space-y-2 p-4">
+          <ul class="">
             <li>
-              <router-link to="/" class="block py-2 px-4 hover:bg-purple-500">Home</router-link>
+              <router-link to="/" class="block py-2 px-4 hover:bg-purple-500 transition duration-300">Home</router-link>
             </li>
             <li>
-              <router-link to="/news" class="block py-2 px-4 hover:bg-purple-500">News</router-link>
+              <router-link to="/news" class="block py-2 px-4 hover:bg-purple-500 transition duration-300">News</router-link>
             </li>
             <li>
-              <router-link to="/contacts" class="block py-2 px-4 hover:bg-purple-500">Contact</router-link>
+              <router-link to="/contacts" class="block py-2 px-4 hover:bg-purple-500 transition duration-300">Contact</router-link>
             </li>
             <li>
-              <router-link to="/aboutus" class="block py-2 px-4 hover:bg-purple-500">About Us</router-link>
+              <router-link to="/aboutus" class="block py-2 px-4 hover:bg-purple-500 transition duration-300">About Us</router-link>
             </li>
           </ul>
-          <li>
-            <button @click="scrollToTop" class="block py-2 px-4 hover:bg-purple-500">Back to Top</button>
-          </li>
         </ul>
       </div>
     </nav>
