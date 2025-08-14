@@ -6,18 +6,19 @@
       
       <ul class="hidden md:flex space-x-6 text-lg font-semibold">
         <li class="hover:text-2xl duration-300">
-          <a @click="scrollToTop" href="#" class="cursor-pointer">Home</a>
+          <router-link to="/" class="cursor-pointer">Home</router-link>
         </li>
         <li class="hover:text-2xl duration-300">
-          <a @click.prevent="scrollToSection('news')" href="#" class="cursor-pointer">News</a>
+          <router-link to="/news" class="cursor-pointer">News</router-link>
         </li>
         <li class="hover:text-2xl duration-300">
-          <a @click.prevent="scrollToSection('contact')" href="#" class="cursor-pointer">Contact</a>
+          <router-link to="/contacts" class="cursor-pointer">Contact</router-link>
         </li>
         <li class="hover:text-2xl duration-300">
-          <a @click.prevent="scrollToSection('works')" href="#" class="cursor-pointer">About Us</a>
+          <router-link to="/aboutus" class="cursor-pointer">About Us</router-link>
         </li>
       </ul>
+
 
       <button @click="toggleMobileMenu" class="md:hidden p-2 rounded-lg text-purple-600 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-500 duration-200">
         <span class="text-xl">{{ isMobileMenuOpen ? '✕' : '☰' }}</span>
@@ -25,17 +26,22 @@
 
       <div v-if="isMobileMenuOpen" class="absolute top-full left-0 right-0 md:hidden bg-gray-400 text-white shadow-lg border-t border-gray-300">
         <ul class="flex flex-col space-y-2 p-4">
+          <ul class="flex flex-col space-y-2 p-4">
+            <li>
+              <router-link to="/" class="block py-2 px-4 hover:bg-purple-500">Home</router-link>
+            </li>
+            <li>
+              <router-link to="/news" class="block py-2 px-4 hover:bg-purple-500">News</router-link>
+            </li>
+            <li>
+              <router-link to="/contacts" class="block py-2 px-4 hover:bg-purple-500">Contact</router-link>
+            </li>
+            <li>
+              <router-link to="/aboutus" class="block py-2 px-4 hover:bg-purple-500">About Us</router-link>
+            </li>
+          </ul>
           <li>
-            <a @click.prevent="goHome" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">Home</a>
-          </li>
-          <li>
-            <a @click.prevent="scrollToSection('news')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">News</a>
-          </li>
-          <li>
-            <a @click.prevent="scrollToSection('contact')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">Contact</a>
-          </li>
-          <li>
-            <a @click.prevent="scrollToSection('aboutus')" href="#" class="block py-2 px-4 hover:bg-purple-500 cursor-pointer">About Us</a>
+            <button @click="scrollToTop" class="block py-2 px-4 hover:bg-purple-500">Back to Top</button>
           </li>
         </ul>
       </div>
@@ -53,35 +59,37 @@ export default {
       isMobileMenuOpen.value = !isMobileMenuOpen.value;
     };
 
-    // Fixed: Move functions inside setup() and fix typo
     const scrollToTop = () => {
-      window.scrollTo({  // Fixed: was "windows"
+      window.scrollTo({
         top: 0,
         behavior: 'smooth'
       });
       isMobileMenuOpen.value = false;
     };
 
-    const goHome = () => {
-      window.location.reload();
-    };
-
     const scrollToSection = (sectionId) => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        });
-      } 
-      isMobileMenuOpen.value = false;
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          // Account for fixed navbar height
+          const navHeight = 100; 
+          const elementPosition = element.offsetTop - navHeight;
+          
+          window.scrollTo({
+            top: elementPosition,
+            behavior: 'smooth'
+          });
+        } else {
+          console.log(`Element with ID '${sectionId}' not found`);
+        }
+        isMobileMenuOpen.value = false;
+      }, 100);
     };
 
     return {
       isMobileMenuOpen,
       toggleMobileMenu,
       scrollToTop,
-      goHome,
       scrollToSection
     };
   }

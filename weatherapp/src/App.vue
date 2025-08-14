@@ -1,13 +1,25 @@
-<script setup>
-import  Main  from './pages/main.vue'
-</script>
-
 <template>
-  <div>
-    <Main />
+  <div :style="{ backgroundImage: `url(${AuroraBorealis})` }" class="bg-cover bg-center min-h-screen">
+    <Navbar />
+    <router-view /> <!-- Vue Router will put the current page here -->
+    <Footer />
   </div>
 </template>
 
-<style scoped>
+<script>
+import Navbar from './components/navBar.vue'
+import Footer from './components/footer.vue'
+import AuroraBorealis from './assets/aurora-borealis.jpg'
 
-</style>
+export default {
+  components: {
+    Navbar,
+    Footer
+  },
+  data() {
+    return {
+      AuroraBorealis
+    }
+  }
+}
+</script>
