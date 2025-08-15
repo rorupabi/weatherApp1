@@ -1,7 +1,9 @@
+<!--ROOT COMPONENT-->
+
 <template>
   <div :style="{ backgroundImage: `url(${AuroraBorealis})` }" class="bg-cover bg-center min-h-screen">
     <Navbar />
-    <router-view /> <!-- Vue Router will put the current page here -->
+    <router-view /> <!--Render-->
     <Footer />
   </div>
 </template>
