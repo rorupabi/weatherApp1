@@ -50,7 +50,7 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/weather-api.git
+git clone https://github.com/yourusername/weatherapp1.git
 cd weather-api
 
 # Install backend dependencies
