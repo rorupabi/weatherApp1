@@ -51,20 +51,31 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:space-x-6 gap-4 lg:gap-0 lg:overflow-x-auto pb-6">
+      <div v-if="loading" class="flex space-x-4 overflow-x-auto pb-6 scrollbar-hide drag-scroll">
         <div 
-          v-for="i in 8" 
+          v-for="i in displayCount" 
           :key="`loading-${i}`" 
-          class="lg:flex-shrink-0 w-full lg:w-80 h-40 sm:h-48 bg-gray-500 bg-opacity-10 backdrop-blur-md rounded-2xl sm:rounded-3xl animate-pulse border border-gray-500 border-opacity-20 transition duration-300"
+          class="flex-shrink-0 w-72 sm:w-80 h-40 sm:h-48 bg-gray-500 bg-opacity-10 backdrop-blur-md rounded-2xl sm:rounded-3xl animate-pulse border border-gray-500 border-opacity-20 transition duration-300"
         ></div>
       </div>
 
       <!-- Weather Cards -->
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:space-x-6 gap-4 lg:gap-0 lg:overflow-x-auto pb-6 mb-6 sm:mb-8">
+      <div 
+        v-else 
+        ref="weatherCardsContainer"
+        class="flex space-x-4 overflow-x-auto pb-6 mb-6 sm:mb-8 scrollbar-hide drag-scroll"
+        @mousedown="startDrag"
+        @mousemove="onDrag"
+        @mouseup="endDrag"
+        @mouseleave="endDrag"
+        @touchstart="startDrag"
+        @touchmove="onDrag"
+        @touchend="endDrag"
+      >
         <div
-          v-for="(weather, index) in weatherData"
+          v-for="(weather, index) in displayedWeatherData"
           :key="`weather-${weather.city}-${weather.temp}-${weather.condition}`"
-          :class="`lg:flex-shrink-0 w-full lg:w-80 h-40 sm:h-48 bg-gradient-to-br ${getBackgroundGradient(weather.condition)} rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white shadow-2xl relative overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-3xl`"
+          :class="`weather-card flex-shrink-0 w-72 sm:w-80 h-40 sm:h-48 bg-gradient-to-br ${getBackgroundGradient(weather.condition)} rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-white shadow-2xl relative overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-3xl`"
           style="box-shadow: 0 8px 32px rgba(0,0,0,0.3);"
         >
           <!-- Background decoration with glassmorphism -->
@@ -102,6 +113,24 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Show More/Less Button (only visible when there are more cards) -->
+      <div v-if="weatherData.length > maxDisplayCount" class="mt-4 sm:mt-6 text-center">
+        <button
+          @click="toggleShowAll"
+          class="backdrop-blur-md bg-slate-700 bg-opacity-40 border border-white border-opacity-20 hover:bg-opacity-60 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 font-medium flex items-center space-x-2 mx-auto shadow-lg hover:shadow-xl text-sm sm:text-base mr-4"
+        >
+          <span>{{ showAll ? `Show Less (${maxDisplayCount})` : `Show All (${weatherData.length})` }}</span>
+          <svg 
+            :class="`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
       </div>
 
       <!-- Refresh Button -->
@@ -156,7 +185,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 // Weather Icons - Enhanced with better styling
 const SunIcon = {
@@ -181,6 +210,23 @@ const loading = ref(true)
 const error = ref(null)
 const lastUpdated = ref('')
 const apiKey = ref(import.meta.env?.VITE_OPENWEATHER_API_KEY || null)
+const showAll = ref(false)
+const maxDisplayCount = ref(5) // Limit to 5 cards initially
+
+// Drag scrolling functionality
+const weatherCardsContainer = ref(null)
+const isDragging = ref(false)
+const startX = ref(0)
+const scrollLeft = ref(0)
+
+// Computed properties
+const displayCount = computed(() => {
+  return showAll.value ? weatherData.value.length : maxDisplayCount.value
+})
+
+const displayedWeatherData = computed(() => {
+  return showAll.value ? weatherData.value : weatherData.value.slice(0, maxDisplayCount.value)
+})
 
 // Countries list
 const countries = [
@@ -213,6 +259,45 @@ const baseMockData = [
   { country: 'Russia', city: 'Moscow', baseTemp: 12, condition: 'snowy', description: 'Light Snow' },
   { country: 'UAE', city: 'Dubai', baseTemp: 37, condition: 'sunny', description: 'Very Hot' }
 ]
+
+// Toggle show all function
+const toggleShowAll = () => {
+  showAll.value = !showAll.value
+}
+
+// Drag scrolling functions
+const startDrag = (e) => {
+  if (!weatherCardsContainer.value) return
+  
+  isDragging.value = true
+  weatherCardsContainer.value.style.cursor = 'grabbing'
+  weatherCardsContainer.value.style.userSelect = 'none'
+  
+  const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX
+  startX.value = clientX - weatherCardsContainer.value.offsetLeft
+  scrollLeft.value = weatherCardsContainer.value.scrollLeft
+  
+  e.preventDefault()
+}
+
+const onDrag = (e) => {
+  if (!isDragging.value || !weatherCardsContainer.value) return
+  
+  const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX
+  const x = clientX - weatherCardsContainer.value.offsetLeft
+  const walk = (x - startX.value) * 2 // Scroll speed multiplier
+  weatherCardsContainer.value.scrollLeft = scrollLeft.value - walk
+  
+  e.preventDefault()
+}
+
+const endDrag = () => {
+  if (!weatherCardsContainer.value) return
+  
+  isDragging.value = false
+  weatherCardsContainer.value.style.cursor = 'grab'
+  weatherCardsContainer.value.style.userSelect = 'auto'
+}
 
 // Generate realistic varying mock data
 const generateMockWeatherData = () => {
@@ -376,33 +461,47 @@ onMounted(() => {
 
 <style scoped>
 /* Custom scrollbar for horizontal scroll */
-.overflow-x-auto::-webkit-scrollbar {
-  height: 6px;
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.overflow-x-auto::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+/* Smooth scrolling */
+.overflow-x-auto {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
-.overflow-x-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+/* Drag scrolling styles */
+.drag-scroll {
+  cursor: grab;
+  user-select: none;
 }
 
-/* Hide scrollbar on mobile for cleaner look */
-@media (max-width: 1024px) {
-  .lg\:overflow-x-auto {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  
-  .lg\:overflow-x-auto::-webkit-scrollbar {
-    display: none;
-  }
+.drag-scroll:active {
+  cursor: grabbing;
+}
+
+/* Ensure proper spacing for horizontal scroll */
+.flex.space-x-4 > *:last-child {
+  margin-right: 1rem;
+}
+
+/* Prevent text selection during drag */
+.drag-scroll * {
+  pointer-events: none;
+}
+
+.drag-scroll .weather-card {
+  pointer-events: auto;
+}
+
+/* Smooth transitions for cards */
+.weather-card {
+  transition: transform 0.2s ease-in-out;
 }
 </style>
