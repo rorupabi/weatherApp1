@@ -1,9 +1,9 @@
 <template>
     <!--<Weather Info />-->
-    <div class="flex flex-col lg:flex-row gap-4 m-4 max-w-6xl mx-auto pt-26">
+    <div class="flex flex-col lg:flex-row gap-4 m-4 pl-4 pr-4 md:mt-8 sm:mt-12 max-w-6xl mx-auto pt-16 sm:pt-20 md:pt-24">
         <!-- Main Weather Card -->
-        <div class="bg-gradient-to-br from-purple-600 via-blue-500 to-teal-600 p-4 rounded-2xl shadow-lg flex-1 max-h-64 hover:shadow-xl transition-shadow duration-300">
-            <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-4 h-full">
+        <div class="bg-gradient-to-br from-purple-600 via-blue-500 to-teal-600 p-3 sm:p-4 rounded-2xl shadow-lg flex-1 hover:shadow-xl transition-shadow duration-300">
+            <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-3 sm:p-4 h-full">
                 
                 <!-- Header Section with Reset Button -->
                 <div class="mb-3 flex justify-between items-start">
@@ -48,7 +48,7 @@
                     
                     <!-- Temperature Section -->
                     <div class="text-white">
-                        <div class="text-4xl font-bold mb-1">{{ weatherData.temperature }}°C</div>
+                        <div class="text-3xl sm:text-4xl font-bold mb-1">{{ weatherData.temperature }}°C</div>
                         <div class="text-sm mb-1">{{ weatherData.condition }}</div>
                         <div class="text-xs opacity-80">H: {{ weatherData.maxTemp }}° L: {{ weatherData.minTemp }}°</div>
                     </div>
@@ -79,8 +79,8 @@
         </div>
 
         <!-- Compact Search Weather Card -->
-        <div class="bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-400 p-4 rounded-2xl shadow-lg w-full lg:w-80 max-h-64 hover:shadow-xl transition-shadow duration-300 relative">
-            <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-4 h-full flex flex-col">
+        <div class="bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-400 p-3 sm:p-4 rounded-2xl shadow-lg w-full lg:w-80 hover:shadow-xl transition-shadow duration-300 relative">
+            <div class="bg-black/20 backdrop-blur-sm rounded-3xl p-3 sm:p-4 h-full flex flex-col">
                 
                 <!-- Header -->
                 <div class="mb-2">
@@ -144,12 +144,69 @@
                     <p>{{ searchError }}</p>
                 </div>
                 
-                <!-- Search Results Popup - Positioned to the right -->
+                <!-- Search Results Popup - Positioned to the right on desktop, below on mobile -->
                 <div 
                     v-if="searchResult" 
                     ref="searchPopup"
-                    class="absolute top-[-1rem] left-full ml-6 w-72 bg-white rounded-3xl shadow-2xl border border-gray-200 p-4 text-gray-800 z-50 animate-in slide-in-from-left-2 duration-200"
+                    class="absolute z-50 bg-white rounded-3xl shadow-2xl border border-gray-200 p-4 text-gray-800 animate-in slide-in-from-left-2 duration-200
+                           top-0 left-full ml-6 w-72 hidden lg:block"
                     style="animation: slideInRight 0.3s ease-out;"
+                    @click.stop
+                >
+                    <!-- Close button -->
+                    <button 
+                        @click="clearSearch"
+                        class="absolute top-2 right-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
+                        title="Close"
+                    >
+                        ×
+                    </button>
+                    
+                    <div class="pr-6">
+                        <!-- Location and main temp -->
+                        <div class="mb-3">
+                            <h3 class="font-bold text-lg text-gray-900">{{ searchResult.location }}</h3>
+                            <p class="text-sm text-gray-600 mb-2">{{ searchResult.condition }}</p>
+                            <div class="flex items-center gap-3">
+                                <div class="text-3xl font-bold text-blue-600">{{ searchResult.temperature }}°C</div>
+                                <div class="text-sm text-gray-500">Feels like {{ searchResult.feelsLike }}°C</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather details grid -->
+                        <div class="grid grid-cols-2 gap-3 pt-3 border-t border-gray-200">
+                            <div class="flex items-center gap-2">
+                                <span class="text-blue-500">💨</span>
+                                <div>
+                                    <p class="text-xs text-gray-500">Wind Speed</p>
+                                    <p class="font-semibold">{{ searchResult.windSpeed }} km/h</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-blue-500">💧</span>
+                                <div>
+                                    <p class="text-xs text-gray-500">Humidity</p>
+                                    <p class="font-semibold">{{ searchResult.humidity }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action button -->
+                        <div class="mt-4 pt-3 border-t border-gray-200">
+                            <button 
+                                @click="setAsMainWeather"
+                                class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium text-sm"
+                            >
+                                Set as Main Weather
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Search Results - Below the search card -->
+                <div 
+                    v-if="searchResult" 
+                    class="lg:hidden fixed inset-x-4 top-32 bg-white rounded-3xl shadow-2xl border border-gray-200 p-4 text-gray-800 z-50 max-h-96 overflow-y-auto"
                     @click.stop
                 >
                     <!-- Close button -->
@@ -227,36 +284,6 @@ export default {
                 condition: 'Loading...'
             },
 
-        async loadDefaultWeather() {
-            // Load default weather first, then try user location
-            console.log('Loading default weather...');
-            try {
-                await this.fetchWeatherByCity('Manila, Philippines');
-                console.log('Default weather loaded successfully');
-            } catch (error) {
-                console.error('Default weather failed:', error);
-                this.error = 'Unable to load weather data';
-            } finally {
-                this.isLoading = false;
-            }
-            
-            // Try to get user location in background (don't affect UI)
-            setTimeout(async () => {
-                try {
-                    const position = await this.getCurrentPosition();
-                    const { latitude, longitude } = position.coords;
-                    this.userLocation = { lat: latitude, lon: longitude };
-                    
-                    // Silently update to user location if we're still on default
-                    if (!this.isUsingCustomLocation) {
-                        await this.fetchWeatherByCoordinates(latitude, longitude);
-                        console.log('Quietly updated to user location');
-                    }
-                } catch (error) {
-                    console.log('Background user location failed:', error.message);
-                }
-            }, 2000);
-        },
             // Search functionality
             searchQuery: '',
             isSearching: false,
@@ -311,6 +338,13 @@ export default {
                 this.getUserLocationWeather();
             }
         }, 600000);
+
+        // Add click outside listener for mobile popup
+        document.addEventListener('click', this.handleClickOutside);
+    },
+    beforeUnmount() {
+        // Clean up event listener
+        document.removeEventListener('click', this.handleClickOutside);
     },
     methods: {
         updateDateTime() {
@@ -326,6 +360,37 @@ export default {
                 minute: '2-digit',
                 hour12: true
             });
+        },
+
+        async loadDefaultWeather() {
+            // Load default weather first, then try user location
+            console.log('Loading default weather...');
+            try {
+                await this.fetchWeatherByCity('Manila, Philippines');
+                console.log('Default weather loaded successfully');
+            } catch (error) {
+                console.error('Default weather failed:', error);
+                this.error = 'Unable to load weather data';
+            } finally {
+                this.isLoading = false;
+            }
+            
+            // Try to get user location in background (don't affect UI)
+            setTimeout(async () => {
+                try {
+                    const position = await this.getCurrentPosition();
+                    const { latitude, longitude } = position.coords;
+                    this.userLocation = { lat: latitude, lon: longitude };
+                    
+                    // Silently update to user location if we're still on default
+                    if (!this.isUsingCustomLocation) {
+                        await this.fetchWeatherByCoordinates(latitude, longitude);
+                        console.log('Quietly updated to user location');
+                    }
+                } catch (error) {
+                    console.log('Background user location failed:', error.message);
+                }
+            }, 2000);
         },
 
         // localStorage methods for persistence
@@ -599,9 +664,9 @@ export default {
             }
         },
 
-        async clickOutside(event) {
-            const popup = this.$refs.searchPopup;
-            if (popup && !popup.contains(event.target)) {
+        handleClickOutside(event) {
+            // Handle mobile popup click outside
+            if (this.searchResult && !event.target.closest('.search-weather-card') && !event.target.closest('.search-result-popup')) {
                 this.clearSearch();
             }
         },

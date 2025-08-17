@@ -5,22 +5,22 @@
       </button>
       
       <ul class="hidden md:flex space-x-6 text-lg font-semibold">
-        <li class="hover:text-2xl duration-300">
+        <li class="hover:text-xl duration-300">
           <router-link to="/" class="cursor-pointer">Home</router-link>
         </li>
-        <li class="hover:text-2xl duration-300">
+        <li class="hover:text-xl duration-300">
           <router-link to="/news" class="cursor-pointer">News</router-link>
         </li>
-        <li class="hover:text-2xl duration-300">
+        <li class="hover:text-xl duration-300">
           <router-link to="/contacts" class="cursor-pointer">Contact</router-link>
         </li>
-        <li class="hover:text-2xl duration-300">
+        <li class="hover:text-xl duration-300">
           <router-link to="/aboutus" class="cursor-pointer">About Us</router-link>
         </li>
       </ul>
 
 
-      <button @click="toggleMobileMenu" class="md:hidden p-2 rounded-lg text-purple-600 cursor-pointer focus:outline-none focus:ring-1 focus:ring-purple-500 duration-200">
+      <button @click="toggleMobileMenu" class="md:hidden p-2 rounded-lg text-white font-semibold cursor-pointer duration-300">
         <span class="text-xl">{{ isMobileMenuOpen ? '✕' : '☰' }}</span>
       </button>
 
